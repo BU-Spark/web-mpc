@@ -51,4 +51,5 @@ jobs:
       
       #run tests
       - run: Xvfb :1 -screen 0 1024x768x24 & export DISPLAY=:1
-      - run: npm run test
+      - run: node test/selenium/small_test.js
+      # - run: npm run test

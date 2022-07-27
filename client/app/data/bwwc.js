@@ -11,7 +11,7 @@ define([], function () {
       {
         "name":"Number Of Employees",
         "element":"number-employees-hot",
-        "operations": {SUM: true, STD: true},
+        "operations": {SUM: true, STD: true, LIN: [[["Ex/Sen", "whiteM"], ["Ex/Sen", "asianM"]], [["Techs", "hispF"], ["Techs","hispM"]]]},
         "cohortOperations": {SUM: true},
         "hot_parameters":{
           "rowHeaderWidth": ROW_HEADER_WIDTH,

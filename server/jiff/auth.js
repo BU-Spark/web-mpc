@@ -73,6 +73,8 @@ function verifyStatus(sessionKey, expectedStatus) {
     if (expectedStatus === actualStatus) {
       return true;
     } else {
+      console.log("verifying status error: status is " + data.status +" when expected status is " + expectedStatus)
+      console.log(data)
       throw new Error('Session status is ' + actualStatus);
     }
   });
@@ -88,6 +90,7 @@ module.exports = {
 
       // Analyst connect when they want to compute the results, the status must be STOP
       // Clients connect to submit, the status must be START
+      console.log("party id is: " + party_id)
       await verifyStatus(computation_id, party_id === 1 ? 'STOP' : 'START'); // if failed, this will throw an error
 
       if (party_id !== 1 && party_id != null) {

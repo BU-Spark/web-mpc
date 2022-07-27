@@ -1,13 +1,12 @@
 {
-    "template": "../client/app/data/bwwc",
+    "template": "../client/app/data/mmf",
     "MAX_SIZE": 10000,
   
     "webRootPath": "/tmp/acme-challenges",
-    "approveDomainsPattern": "^([A-Za-z0-9]+.)?100talent.org$",
+    "approveDomainsPattern": "^([A-Za-z0-9]+.)?mmf.buspark.io$",
     "approveDomainsOpts": {
       "domains": [
-        "www.100talent.org",
-        "100talent.org"
+        "mmf.buspark.io"
       ],
       "email": "test@bu.edu",
       "agreeTos": true
@@ -18,9 +17,9 @@
       "organization": "MMF",
       "subtitle": "Gathering Data for Museums",
       "logo": "",
-      "cohort": "Industry",
-      "session_key": "MMF 2021 Submission ID",
-      "email": "team@test.org"
+      "cohort": "Cohort",
+      "session_key": "MMF 2022 Submission ID",
+      "email": "test@bu.edu"
     }
   }
   

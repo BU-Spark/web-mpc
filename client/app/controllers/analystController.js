@@ -20,7 +20,7 @@ define(['pki', 'alertHandler'], function (pki, alertHandler) {
       return res;
     }).catch(function (err) {
       if (err && err.hasOwnProperty('responseText') && err.responseText !== undefined) {
-        alertHandler.error(err.responseText);
+        alertHandler.error(err.responseText + ". Please pause the session then try again!");
       }
     });
   }

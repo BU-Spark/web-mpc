@@ -665,6 +665,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
         continue;
       }
       result.push({name: table_hot_obj._sail_meta.name, data: construct_data(table_hot_obj)});
+      result.push({name: table_hot_obj._sail_meta.name + 'sqaured', data: construct_data_squared(table_hot_obj)});
     }
 
     return result;
@@ -704,6 +705,31 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     return data;
   }
 
+  function construct_data_squared(table_hot_obj) {
+    var meta = table_hot_obj._sail_meta;
+
+    var data = {};
+    for (var r = 0; r < meta.rowsCount; r++) {
+      for (var c = 0; c < meta.colsCount; c++) {
+        var cell = meta.cells[r][c];
+        var cell_data = table_hot_obj.getDataAtCell(r, c);
+        if (!cell_data || cell_data.toString().trim() === '') {
+          if (cell.default) {
+            cell_data = cell.default;
+          }
+        }
+
+        var row_key = cell.row_key;
+        var col_key = cell.col_key;
+        if (data[row_key] === undefined) {
+          data[row_key] = {};
+        }
+        data[row_key][col_key] = cell_data * cell_data;
+      }
+    }
+    return data;
+  }
+
   function resetTableWidth() {
 
     var $instructions = $('#instructions');
@@ -724,7 +750,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     return {};
   }
 
-  function displayReadTable(tables) {
+  function displayReadTable(tables, type) {
     var hotTables = [];
     for (var name in tables) {
       var template = getTemplate(name, 'name');
@@ -755,7 +781,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
         width: template.width
       };
 
-      var handsOn = new Handsontable(document.getElementById(template.element), settings);
+
+      if(type === 'deviation'){
+        var handsOn = new Handsontable(document.getElementById(template.element + 'dev'), settings);
+      }else{
+        var handsOn = new Handsontable(document.getElementById(template.element), settings);
+      }
+      
       handsOn.render();
       hotTables.push(handsOn);
     }
@@ -958,9 +990,15 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
         .appendTo(div);
 
       // Table Div
-      $('<div>').attr('class', 'table-section')
-        .attr('id', tables[i].element)
+      if(tablesDiv === '#tables-area-deviation'){
+        $('<div>').attr('class', 'table-section')
+        .attr('id', tables[i].element + 'dev')
         .appendTo(div);
+      }else{
+        $('<div>').attr('class', 'table-section')
+          .attr('id', tables[i].element)
+          .appendTo(div);
+      }
 
       $(div).appendTo(tablesArea);
     }
@@ -1042,6 +1080,21 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     filesaver.saveAs(new Blob([JSON.stringify(usability)], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
 
+  function saveLinearRegressions(linearRegressions, session, counts){
+    var csv = [];
+
+    csv.push('Table, Independent Variable Row, Independent Variable Column, Dependent Variable Row, Dependent Variable Column, Slope, Y-Intercept\n');
+
+    var rows = linearRegressions['all'];
+    rows.forEach(function(row){
+      csv.push(row['table'] + ', ' + row['independent'].toString() + ', ' + row['dependent'].toString() + ', ' +  row['slope'] + ', ' + row['y-intercept'] + '\n');
+    })
+
+    var full = csv.join('');
+
+    filesaver.saveAs(new Blob([full], {type: 'text/csv;charset=utf-8'}), 'LinearRegressions_' + session + '.csv');
+  }
+
   function saveQuestions(cohorts, session, counts) {
     if (cohorts == null) {
       return;
@@ -1099,6 +1152,7 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     saveTables: saveTables,
     saveQuestions: saveQuestions,
     saveUsability: saveUsability,
+    saveLinearRegressions: saveLinearRegressions,
     displayReadTable: displayReadTable,
     resetTableWidth: resetTableWidth,
     getWidth: getWidth,

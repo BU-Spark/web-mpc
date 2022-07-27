@@ -4,6 +4,7 @@ define([], function () {
   const SUM = 'SUM';
   const AVG = 'AVG';
   const STD = 'STD';
+  const LIN = 'LIN';
 
   const SELF = 'SELF';
 
@@ -12,6 +13,7 @@ define([], function () {
     SUM,
     AVG,
     STD,
+    LIN,
     SELF
   };
 
