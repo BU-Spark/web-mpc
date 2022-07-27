@@ -73,11 +73,18 @@ define([
     }
   }
 
+<<<<<<< HEAD
   function addDefinitionLink() {
     if (table_template.definitions) {
       $('#cohort-drop-label').append(
         ' <a href="/definitions" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>'
       );
+=======
+    function addDefinitionLink() {
+      if (table_template.definitions) {
+        $('#cohort-drop-label').append(' <a href="/definitions" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>');
+      }
+>>>>>>> 2ad0c18 (update packages)
     }
   }
 
