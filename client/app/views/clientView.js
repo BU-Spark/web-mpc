@@ -1,16 +1,16 @@
 define([
-  "jquery",
-  "controllers/clientController",
-  "controllers/tableController",
-  "controllers/usabilityController",
-  "helper/drop_sheet",
-  "spin",
-  "Ladda",
-  "ResizeSensor",
-  "table_template",
-  "alertHandler",
-  "bootstrap",
-  "./surveyView",
+  'jquery',
+  'controllers/clientController',
+  'controllers/tableController',
+  'controllers/usabilityController',
+  'helper/drop_sheet',
+  'spin',
+  'Ladda',
+  'ResizeSensor',
+  'table_template',
+  'alertHandler',
+  'bootstrap',
+  './surveyView',
 ], function (
   $,
   clientController,
@@ -29,7 +29,7 @@ define([
   // Creates survey
   function displaySurveyQuestions() {
     // surveyjs
-    const survey_id = "surveyjs-1";
+    const survey_id = 'surveyjs-1';
     // const survey_id = "surveyjs-2";
     new surveyView(survey_id);
   }
@@ -38,8 +38,8 @@ define([
     for (var i = 0; i < table_template.tables.length; i++) {
       var elem = table_template.tables[i].element;
       new ResizeSensor(
-        $("#" + elem)
-          .find(".wtHider")
+        $('#' + elem)
+          .find('.wtHider')
           .first()[0],
         function () {
           tableController.resetTableWidth();
@@ -50,7 +50,7 @@ define([
 
   function addDefinitionLink() {
     if (table_template.definitions) {
-      $("#cohort-drop-label").append(
+      $('#cohort-drop-label').append(
         ' <a href="/definitions" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>'
       );
     }
@@ -60,17 +60,12 @@ define([
     $(document).ready(function () {
       // Hide by default
 
-      tableController.createTableElems(table_template.tables, "#tables-area");
+      tableController.createTableElems(table_template.tables, '#tables-area');
 
       displaySurveyQuestions();
       // Create the tables
       var tables = tableController.makeTables(table_template.tables);
 
-<<<<<<< HEAD
-    function addDefinitionLink() {
-      if (table_template.definitions) {
-        $('#cohort-drop-label').append(' <a href="/definitions" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>');
-=======
       usabilityController.initialize();
       usabilityController.saveBrowser();
 
@@ -78,62 +73,61 @@ define([
       if (table_template.totals) {
         tableController.createTableElems(
           [table_template.totals],
-          "#totals-table"
+          '#totals-table'
         );
         totals_table = tableController.makeTables([table_template.totals])[0];
->>>>>>> a7d4388948a245454f2453c4d2fa4b1b14cf6fab
       }
 
-      var $verify = $("#verify");
-      var $session = $("#session");
-      var $participationCode = $("#participation-code");
+      var $verify = $('#verify');
+      var $session = $('#session');
+      var $participationCode = $('#participation-code');
 
-      $("#choose-file").on("change", function (e) {
+      $('#choose-file').on('change', function (e) {
         var fileName = null;
-        if (e.type === "drop") {
+        if (e.type === 'drop') {
           fileName = e.dataTransfer.files[0].name;
-        } else if (e.type === "change") {
+        } else if (e.type === 'change') {
           fileName = e.target.files[0].name;
         }
 
-        $("#file-name").text(fileName);
+        $('#file-name').text(fileName);
       });
 
-      $("#session, #participation-code").on("blur", function (e) {
-        e.target.dataset["did_blur"] = true;
+      $('#session, #participation-code').on('blur', function (e) {
+        e.target.dataset['did_blur'] = true;
         clientController.validateSessionInput(e.target, true);
       });
 
-      $("#session, #participation-code").on("input", function (e) {
-        if (e.target.dataset["did_blur"]) {
+      $('#session, #participation-code').on('input', function (e) {
+        if (e.target.dataset['did_blur']) {
           clientController.validateSessionInput(e.target, false);
         }
-        $verify.prop("checked", false);
+        $verify.prop('checked', false);
       });
 
       //Copied from trusted/session_data
       var getParameterByName = function (name) {
-        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
           results = regex.exec(location.search);
         return results === null
-          ? ""
-          : decodeURIComponent(results[1].replace(/\+/g, " "));
+          ? ''
+          : decodeURIComponent(results[1].replace(/\+/g, ' '));
       };
 
-      $participationCode.val(getParameterByName("participationCode"));
-      $session.val(getParameterByName("session"));
-      if (String($session.val()).trim() !== "") {
+      $participationCode.val(getParameterByName('participationCode'));
+      $session.val(getParameterByName('session'));
+      if (String($session.val()).trim() !== '') {
         $session.blur();
       }
-      if (String($participationCode.val()).trim() !== "") {
+      if (String($participationCode.val()).trim() !== '') {
         $participationCode.blur();
       }
 
       // Remove error from radio buttons once you click on them
-      $("form input[type=radio]").on("change", function (e) {
-        $(e.target.form).removeClass("has-error");
-        $verify.prop("checked", false);
+      $('form input[type=radio]').on('change', function (e) {
+        $(e.target.form).removeClass('has-error');
+        $verify.prop('checked', false);
       });
 
       window.scrollTo(0, 0);
@@ -165,33 +159,33 @@ define([
       addDefinitionLink();
 
       // Table accordion.
-      $("#tables-area").hide();
-      $("#expand-table-button").click(function (e) {
-        $("#tables-area").slideToggle(function () {
-          if (!$("#tables-area").is(":hidden")) {
+      $('#tables-area').hide();
+      $('#expand-table-button').click(function (e) {
+        $('#tables-area').slideToggle(function () {
+          if (!$('#tables-area').is(':hidden')) {
             tableController.updateWidth(tables);
           } else {
             tableController.resetTableWidth();
           }
         });
-        $(e.target).toggleClass("flip");
+        $(e.target).toggleClass('flip');
       });
 
-      var _target = document.getElementById("drop-area");
-      var _choose = document.getElementById("choose-file-button");
+      var _target = document.getElementById('drop-area');
+      var _choose = document.getElementById('choose-file-button');
       var spinner;
       var _workstart = function () {
         spinner = new Spinner().spin(_target);
       };
       var _workend = function (status) {
-        $("#tables-area").show();
+        $('#tables-area').show();
         tableController.updateWidth(tables);
         spinner.stop();
       };
 
       var _badfile = function () {
         alertHandler.error(
-          "This file does not appear to be a valid Excel file.",
+          'This file does not appear to be a valid Excel file.',
           function () {}
         );
 
@@ -199,15 +193,15 @@ define([
       };
       var _pending = function () {
         alertHandler.error(
-          "Please wait until the current file is processed.",
+          'Please wait until the current file is processed.',
           function () {}
         );
       };
       var _large = function (len, cb) {
         alertHandler.error(
-          "This file is " +
+          'This file is ' +
             (len / (1024 * 1024)).toFixed(2) +
-            " MB and may take a few moments. Your browser may lock up during this process. Continue?",
+            ' MB and may take a few moments. Your browser may lock up during this process. Continue?',
           cb
         );
       };
@@ -248,58 +242,58 @@ define([
       });
 
       function addValidationErrors(msg) {
-        $verify.prop("checked", false);
-        $("#submit").prop("disabled", true);
-        $("#errors").css("display", "block");
+        $verify.prop('checked', false);
+        $('#submit').prop('disabled', true);
+        $('#errors').css('display', 'block');
 
         for (var i = 0; i < msg.length; i++) {
-          $("#validation-errors").append(
-            '<li><span class="help-block">' + msg[i] + "</span></li>"
+          $('#validation-errors').append(
+            '<li><span class="help-block">' + msg[i] + '</span></li>'
           );
         }
       }
 
       // Register when ready
-      tables[0].addHook("afterChange", afterChange);
+      tables[0].addHook('afterChange', afterChange);
       for (var i = 0; i < tables.length; i++) {
-        tables[i].addHook("afterChange", function (changes, sources) {
+        tables[i].addHook('afterChange', function (changes, sources) {
           if (changes !== null) {
-            $verify.prop("checked", false);
+            $verify.prop('checked', false);
           }
         });
       }
 
       // Button clicks handlers
       $verify.click(function () {
-        var la = Ladda.create(document.getElementById("verify"));
+        var la = Ladda.create(document.getElementById('verify'));
         la.start();
 
         clientController.validate(tables, function (result, msg) {
-          $("#validation-errors").empty();
+          $('#validation-errors').empty();
           la.stop();
           if (result) {
-            $("#submit").prop("disabled", false);
-            $("#errors").css("display", "none");
+            $('#submit').prop('disabled', false);
+            $('#errors').css('display', 'none');
           } else {
             addValidationErrors(msg);
           }
         });
       });
 
-      $("#submit").click(function () {
+      $('#submit').click(function () {
         usabilityController.stopAllTimers();
-        var la = Ladda.create(document.getElementById("submit"));
+        var la = Ladda.create(document.getElementById('submit'));
         la.start();
 
         clientController.validate(tables, function (result, msg) {
-          $("#validation-errors").empty();
+          $('#validation-errors').empty();
           if (!result) {
             la.stop();
             addValidationErrors(msg);
           } else {
             var cohort = clientController.getUserCohort();
-            if (table_template["cohort_selection"] === true) {
-              cohort = $("#cohortDrop").val();
+            if (table_template['cohort_selection'] === true) {
+              cohort = $('#cohortDrop').val();
             }
             clientController.constructAndSend(tables, cohort, la);
           }
@@ -319,20 +313,20 @@ define([
     // };
 
     function $buo_f() {
-      var e = document.createElement("script");
-      e.src = "//browser-update.org/update.min.js";
+      var e = document.createElement('script');
+      e.src = '//browser-update.org/update.min.js';
       document.body.appendChild(e);
     }
 
     try {
-      if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", $buo_f, false);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', $buo_f, false);
       } else {
         $buo_f();
       }
     } catch (e) {
-      if (document.readyState !== "complete") {
-        window.attachEvent("onload", $buo_f);
+      if (document.readyState !== 'complete') {
+        window.attachEvent('onload', $buo_f);
       } else {
         $buo_f();
       }

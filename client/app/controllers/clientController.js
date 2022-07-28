@@ -1,11 +1,11 @@
 define([
-  "jquery",
-  "controllers/tableController",
-  "controllers/jiffController",
-  "controllers/usabilityController",
-  "table_template",
-  "alertHandler",
-  "mpc",
+  'jquery',
+  'controllers/tableController',
+  'controllers/jiffController',
+  'controllers/usabilityController',
+  'table_template',
+  'alertHandler',
+  'mpc',
 ], function (
   $,
   tableController,
@@ -21,19 +21,19 @@ define([
      * the HTML submission history panel
      */
     function appendSubmissionHistory(time, status) {
-      var $submissionHistory = $("#submission-history");
+      var $submissionHistory = $('#submission-history');
       if (status) {
         // append success line
         $submissionHistory.append(
           '<li><span class="success"><img src="/images/accept.png" alt="Success">Successful - ' +
             time +
-            "</span></li>"
+            '</span></li>'
         );
       } else {
         $submissionHistory.append(
           '<li><span class="error"><img src="/images/cancel.png" alt="Error">Unsuccessful - ' +
             time +
-            "</span></li>"
+            '</span></li>'
         );
       }
     }
@@ -42,26 +42,26 @@ define([
      * Error messages definitions
      */
     var SUCCESS_MESSAGE =
-      "Thank you for participating in the data submission! If you discover that there was an error in your submission, you may correct your data, revist this page, and submit your data again.";
-    var SESSION_KEY_ERROR = "Invalid session number";
-    var PARTICIPATION_CODE_ERROR = "Invalid participation code";
+      'Thank you for participating in the data submission! If you discover that there was an error in your submission, you may correct your data, revist this page, and submit your data again.';
+    var SESSION_KEY_ERROR = 'Invalid session number';
+    var PARTICIPATION_CODE_ERROR = 'Invalid participation code';
 
     var SESSION_PARTICIPATION_CODE_SERVER_ERROR =
-      "Session number and participation code do not match";
+      'Session number and participation code do not match';
 
     var UNCHECKED_ERR =
-      "Please acknowledge that all data is correct and verified";
-    var ADD_QUESTIONS_ERR = "Please answer all Additional Questions";
+      'Please acknowledge that all data is correct and verified';
+    var ADD_QUESTIONS_ERR = 'Please answer all Additional Questions';
 
     var GENERIC_TABLE_ERR = 'Please double-check the "%s" table';
-    var SERVER_ERR = "Server not reachable";
+    var SERVER_ERR = 'Server not reachable';
     var GENERIC_SUBMISSION_ERR =
-      "Something went wrong with submission! Please try again";
+      'Something went wrong with submission! Please try again';
 
     var NAN_EMPTY_CELLS =
-      "You have entered non-numeric data into at least one cell. Please make sure all cells contain positive numbers only. If you have no data for that cell, please enter a zero.";
+      'You have entered non-numeric data into at least one cell. Please make sure all cells contain positive numbers only. If you have no data for that cell, please enter a zero.';
     var SEMANTIC_CELLS =
-      "You have entered data into a cell in one table without entering data into the corresponding cell in another table. Please double check all tables";
+      'You have entered data into a cell in one table without entering data into the corresponding cell in another table. Please double check all tables';
     var CELLS_ERRORS = {
       empty: NAN_EMPTY_CELLS,
       type: NAN_EMPTY_CELLS,
@@ -69,19 +69,19 @@ define([
       discrepancies: SEMANTIC_CELLS,
     };
 
-    var cohort_name = "";
-    var COHORT_ERR = "";
+    var cohort_name = '';
+    var COHORT_ERR = '';
 
     var SELF_SELECT =
-      Object.keys(table_template).includes("cohort_selection") &&
-      table_template["cohort_selection"];
+      Object.keys(table_template).includes('cohort_selection') &&
+      table_template['cohort_selection'];
 
     if (SELF_SELECT) {
       cohort_name = document
-        .getElementById("cohort-name")
+        .getElementById('cohort-name')
         .innerHTML.toLowerCase();
       COHORT_ERR =
-        "You have not selected the " + cohort_name + ". Please try again.";
+        'You have not selected the ' + cohort_name + '. Please try again.';
     }
 
     // TODO: create new view for alerts
@@ -98,49 +98,49 @@ define([
      */
     function validateSessionInput(element, checkServerFlag) {
       element = $(element);
-      var pattern = new RegExp($(element).prop("pattern"));
+      var pattern = new RegExp($(element).prop('pattern'));
       var $parent = element.parent();
 
       if (element.val().trim().toLowerCase().match(pattern)) {
-        $parent.removeClass("has-error").addClass("has-success has-feedback");
-        $parent.find(".success-icon").removeClass("hidden").addClass("show");
-        $parent.find(".fail-icon").removeClass("show").addClass("hidden");
-        $parent.find(".fail-help").removeClass("show").addClass("hidden");
-        $parent.find(".fail-custom").removeClass("show").addClass("hidden");
+        $parent.removeClass('has-error').addClass('has-success has-feedback');
+        $parent.find('.success-icon').removeClass('hidden').addClass('show');
+        $parent.find('.fail-icon').removeClass('show').addClass('hidden');
+        $parent.find('.fail-help').removeClass('show').addClass('hidden');
+        $parent.find('.fail-custom').removeClass('show').addClass('hidden');
         if (checkServerFlag) {
           verifySessionServer();
         }
         return true;
       } else {
-        $parent.removeClass("has-success").addClass("has-error has-feedback");
-        $parent.find(".success-icon").removeClass("show").addClass("hidden");
-        $parent.find(".fail-icon").removeClass("hidden").addClass("show");
-        $parent.find(".fail-help").removeClass("hidden").addClass("show");
-        $parent.find(".fail-custom").removeClass("show").addClass("hidden");
+        $parent.removeClass('has-success').addClass('has-error has-feedback');
+        $parent.find('.success-icon').removeClass('show').addClass('hidden');
+        $parent.find('.fail-icon').removeClass('hidden').addClass('show');
+        $parent.find('.fail-help').removeClass('hidden').addClass('show');
+        $parent.find('.fail-custom').removeClass('show').addClass('hidden');
         return false;
       }
     }
 
     function getUserCohort() {
       if (SELF_SELECT) {
-        return "0";
+        return '0';
       }
-      var session = $("#session").val().trim().toLowerCase();
-      var participationCode = $("#participation-code")
+      var session = $('#session').val().trim().toLowerCase();
+      var participationCode = $('#participation-code')
         .val()
         .trim()
         .toLowerCase();
 
-      if (session === "" || participationCode === "") {
+      if (session === '' || participationCode === '') {
         return;
       }
 
       $.ajax({
-        type: "POST",
-        url: "/sessioninfo",
-        contentType: "application/json",
+        type: 'POST',
+        url: '/sessioninfo',
+        contentType: 'application/json',
         data: JSON.stringify({ session: session, userkey: participationCode }),
-        dataType: "text",
+        dataType: 'text',
       })
         .then(function (response) {
           return response.cohort;
@@ -148,7 +148,7 @@ define([
         .catch(function (err) {
           if (
             err &&
-            err.hasOwnProperty("responseText") &&
+            err.hasOwnProperty('responseText') &&
             err.responseText !== undefined
           ) {
             alertHandler.error(err.responseText);
@@ -157,54 +157,54 @@ define([
     }
 
     function verifySessionServer(callback) {
-      var session = $("#session").val().trim().toLowerCase();
-      var participationCode = $("#participation-code")
+      var session = $('#session').val().trim().toLowerCase();
+      var participationCode = $('#participation-code')
         .val()
         .trim()
         .toLowerCase();
 
-      if (session === "" || participationCode === "") {
+      if (session === '' || participationCode === '') {
         callback && callback(false);
         return;
       }
 
       $.ajax({
-        type: "POST",
-        url: "/sessioninfo",
-        contentType: "application/json",
+        type: 'POST',
+        url: '/sessioninfo',
+        contentType: 'application/json',
         data: JSON.stringify({ session: session, userkey: participationCode }),
-        dataType: "text",
+        dataType: 'text',
       })
         .then(function (response) {
           JSON.parse(response); // verify response is json (error responses are string messages)
-          var $parent = $("#session, #participation-code").parent();
-          $parent.removeClass("has-error").addClass("has-success has-feedback");
-          $parent.find(".success-icon").removeClass("hidden").addClass("show");
-          $parent.find(".fail-icon").removeClass("show").addClass("hidden");
-          $parent.find(".fail-help").removeClass("show").addClass("hidden");
-          $parent.find(".fail-custom").removeClass("show").addClass("hidden");
+          var $parent = $('#session, #participation-code').parent();
+          $parent.removeClass('has-error').addClass('has-success has-feedback');
+          $parent.find('.success-icon').removeClass('hidden').addClass('show');
+          $parent.find('.fail-icon').removeClass('show').addClass('hidden');
+          $parent.find('.fail-help').removeClass('show').addClass('hidden');
+          $parent.find('.fail-custom').removeClass('show').addClass('hidden');
           callback && callback(true);
         })
         .catch(function (err) {
           var errorMsg = SERVER_ERR;
-          usabilityController.addValidationError("SESSION_INFO_ERROR");
+          usabilityController.addValidationError('SESSION_INFO_ERROR');
           if (
             err &&
-            err.hasOwnProperty("responseText") &&
+            err.hasOwnProperty('responseText') &&
             err.responseText !== undefined
           ) {
             errorMsg = err.responseText;
           }
 
-          var $parent = $("#session, #participation-code").parent();
-          $parent.removeClass("has-success").addClass("has-error has-feedback");
-          $parent.find(".success-icon").removeClass("show").addClass("hidden");
-          $parent.find(".fail-icon").removeClass("hidden").addClass("show");
-          $parent.find(".fail-help").removeClass("show").addClass("hidden");
+          var $parent = $('#session, #participation-code').parent();
+          $parent.removeClass('has-success').addClass('has-error has-feedback');
+          $parent.find('.success-icon').removeClass('show').addClass('hidden');
+          $parent.find('.fail-icon').removeClass('hidden').addClass('show');
+          $parent.find('.fail-help').removeClass('show').addClass('hidden');
           $parent
-            .find(".fail-custom")
-            .removeClass("hidden")
-            .addClass("show")
+            .find('.fail-custom')
+            .removeClass('hidden')
+            .addClass('show')
             .html(errorMsg);
           callback && callback(false);
         });
@@ -216,16 +216,16 @@ define([
     function validate(tables, callback) {
       var errors = [];
       // Verify session key
-      var $session = $("#session");
+      var $session = $('#session');
       if (!validateSessionInput($session, false)) {
         errors.push(SESSION_KEY_ERROR);
-        usabilityController.addValidationError("SESSION_KEY_ERROR");
+        usabilityController.addValidationError('SESSION_KEY_ERROR');
       }
 
-      var $participationCode = $("#participation-code");
+      var $participationCode = $('#participation-code');
       if (!validateSessionInput($participationCode, false)) {
         errors.push(PARTICIPATION_CODE_ERROR);
-        usabilityController.addValidationError("PARTICIPATION_CODE_ERROR");
+        usabilityController.addValidationError('PARTICIPATION_CODE_ERROR');
       }
 
       // Validate the remaining components after session and
@@ -234,25 +234,25 @@ define([
         if (!result) {
           errors.push(SESSION_PARTICIPATION_CODE_SERVER_ERROR);
           usabilityController.addValidationError(
-            "SESSION_PARTICIPATION_CODE_SERVER_ERROR"
+            'SESSION_PARTICIPATION_CODE_SERVER_ERROR'
           );
         }
 
         // Verify confirmation check box was checked
-        var verifyChecked = $("#verify").is(":checked");
+        var verifyChecked = $('#verify').is(':checked');
         if (!verifyChecked) {
           errors.push(UNCHECKED_ERR);
-          usabilityController.addValidationError("UNCHECKED_ERR");
+          usabilityController.addValidationError('UNCHECKED_ERR');
         }
 
         // Verify cohort was specified if there are cohorts
         var cohort = getUserCohort(); // means no self assigned cohort
         // var cohort = '0'; // means no self assigned cohort
         if (SELF_SELECT) {
-          cohort = $("#cohortDrop").val();
-          if (cohort === "-") {
+          cohort = $('#cohortDrop').val();
+          if (cohort === '-') {
             errors.push(COHORT_ERR);
-            usabilityController.addValidationError("COHORT_ERR");
+            usabilityController.addValidationError('COHORT_ERR');
           }
         }
 
@@ -276,7 +276,7 @@ define([
         // TODO: Pacesetters deployment does not use this validator in the template
         //  this will only affect BWWC
         tableController.registerValidator(
-          "discrepancies",
+          'discrepancies',
           function (table, cell, value, callback) {
             checkSemanticDiscrepancies(tables, table, cell, value, callback);
           }
@@ -291,19 +291,19 @@ define([
           validator_name
         ) {
           var errorMsg;
-          if (validator_name === "type" && value === "") {
-            errorMsg = CELLS_ERRORS["empty"];
+          if (validator_name === 'type' && value === '') {
+            errorMsg = CELLS_ERRORS['empty'];
           } else {
             errorMsg = CELLS_ERRORS[validator_name];
           }
 
           if (errorMsg === null) {
             errorMsg = GENERIC_TABLE_ERR;
-            errorMsg = errorMsg.replace("%s", table_name);
+            errorMsg = errorMsg.replace('%s', table_name);
           }
           if (errors.indexOf(errorMsg) === -1) {
             errors.push(errorMsg);
-            usabilityController.addValidationError("CELL_ERROR");
+            usabilityController.addValidationError('CELL_ERROR');
           }
         };
         tableController.registerErrorHandler(errorHandler);
@@ -312,14 +312,14 @@ define([
         (function validate_callback(i) {
           if (i >= tables.length) {
             // Remove the semantic discrepancies validator.
-            tableController.removeValidator("discrepancies");
+            tableController.removeValidator('discrepancies');
             tableController.removeErrorHandler(0);
             for (i = 0; i < tables.length; i++) {
               tables[i].render();
             }
 
             if (errors.length === 0) {
-              return callback(true, "");
+              return callback(true, '');
             } else {
               return callback(false, errors);
             }
@@ -362,14 +362,14 @@ define([
       }
       if (!Array.isArray) {
         Array.isArray = function (arg) {
-          return Object.prototype.toString.call(arg) === "[object Array]";
+          return Object.prototype.toString.call(arg) === '[object Array]';
         };
       }
       const ordering = mpc.consistentOrdering(table_template);
       const questions = ordering.questions;
       // Begin constructing the data
-      var session = $("#session").val().trim().toLowerCase();
-      var participationCode = $("#participation-code")
+      var session = $('#session').val().trim().toLowerCase();
+      var participationCode = $('#participation-code')
         .val()
         .trim()
         .toLowerCase();
@@ -383,13 +383,13 @@ define([
       let answers = data;
       questions.forEach((question, id) => {
         const hasAnswer = id in data;
-        const hasOther = id + "-Comment" in data;
+        const hasOther = id + '-Comment' in data;
         const values = new Map();
         switch (question.type) {
-          case "radiogroup":
-          case "checkbox": {
-            let otherText = data[id + "-Comment"];
-            otherText = otherText && otherText.length > 0 ? otherText : "";
+          case 'radiogroup':
+          case 'checkbox': {
+            let otherText = data[id + '-Comment'];
+            otherText = otherText && otherText.length > 0 ? otherText : '';
 
             // checkbox is in shape of array, where radiogroup is single item;
             let answerArray = [];
@@ -412,25 +412,25 @@ define([
               if (hasOther) {
                 values.set(String(question.items.length), 1);
               }
-              values.set(question.items.length + "-other", otherText);
+              values.set(question.items.length + '-other', otherText);
             }
             break;
           }
-          case "text": {
-            values.set("1", 0);
-            values.set("1-other", "");
+          case 'text': {
+            values.set('1', 0);
+            values.set('1-other', '');
             if (hasAnswer) {
-              values.set("1", 1);
-              values.set("1-other", answers[id]);
+              values.set('1', 1);
+              values.set('1-other', answers[id]);
             }
             break;
           }
-          case "multipletext": {
+          case 'multipletext': {
             for (let i = 0; i < question.items.length; i++) {
               const item = question.items[i];
 
               // set all subquestion answers to empty value
-              values.set(item.name, item.isNumber ? 0 : "");
+              values.set(item.name, item.isNumber ? 0 : '');
             }
             if (hasAnswer) {
               const answersKeyVals = Object.entries(answers[id]);
@@ -443,7 +443,7 @@ define([
             }
             break;
           }
-          case "matrixdropdown": {
+          case 'matrixdropdown': {
             // set all possible choices to non-checked
             // for each subquestion in question
             for (let i = 0; i < question.items.length; i++) {
@@ -457,9 +457,9 @@ define([
                 for (let k = 0; k < sub_subquestion.items.length; k++) {
                   values.set(
                     subquestion.id +
-                      ":" +
+                      ':' +
                       sub_subquestion.id +
-                      ":" +
+                      ':' +
                       sub_subquestion.items[k].value,
                     0
                   );
@@ -486,7 +486,7 @@ define([
                       for (let choiceID of colChoices) {
                         // set selected choices in columns to 1
                         values.set(
-                          question.items[j].id + ":" + colName + ":" + choiceID,
+                          question.items[j].id + ':' + colName + ':' + choiceID,
                           1
                         );
                       }
@@ -498,11 +498,11 @@ define([
             break;
           }
           default:
-            console.error("Unknown answer type");
+            console.error('Unknown answer type');
             break;
         }
 
-        data_submission["questions"].set(id, values);
+        data_submission['questions'].set(id, values);
       });
 
       // Handle table data, tables are represented as 2D associative arrays
@@ -516,7 +516,7 @@ define([
       if (table_template.ratios != null) {
         for (let ratio of table_template.ratios) {
           var ratio_name =
-            tables_data[ratio[0]].name + " : " + tables_data[ratio[1]].name;
+            tables_data[ratio[0]].name + ' : ' + tables_data[ratio[1]].name;
           data_submission[ratio_name] = {};
           for (let row of Object.keys(tables_data[ratio[0]].data)) {
             data_submission[ratio_name][row] = {};
@@ -527,16 +527,16 @@ define([
               ratioFrac = ratioFrac * 1000;
               ratioFrac = Math.trunc(ratioFrac);
             }
-            data_submission[ratio_name][row]["value"] = ratioFrac;
+            data_submission[ratio_name][row]['value'] = ratioFrac;
           }
         }
       }
 
-      if (document.getElementById("choose-file").files.length > 0) {
+      if (document.getElementById('choose-file').files.length > 0) {
         usabilityController.dataPrefilled();
       }
 
-      data_submission["usability"] = usabilityController.analytics;
+      data_submission['usability'] = usabilityController.analytics;
 
       jiffController.client.submit(
         session,
@@ -548,7 +548,7 @@ define([
             if (response.success) {
               appendSubmissionHistory(new Date(), true);
               alertHandler.success(
-                '<div id="submission-success">' + SUCCESS_MESSAGE + "</div>"
+                '<div id="submission-success">' + SUCCESS_MESSAGE + '</div>'
               );
             } else {
               error(response.error);
@@ -556,10 +556,10 @@ define([
           } else if (err === 0 || err === 500) {
             // check for status 0 or status 500 (Server not reachable.)
             error(SERVER_ERR);
-            usabilityController.addValidationError("SERVER_ERR");
+            usabilityController.addValidationError('SERVER_ERR');
           } else {
             error(GENERIC_SUBMISSION_ERR);
-            usabilityController.addValidationError("GENERIC_SUBMISSION_ERR");
+            usabilityController.addValidationError('GENERIC_SUBMISSION_ERR');
           }
 
           la.stop();
@@ -583,7 +583,7 @@ define([
       // Ignore indices were there is some non-numerical value
       for (var i = 0; i < tables.length; i++) {
         var v = tables[i].getDataAtCell(r, c);
-        if (typeof v !== "number" || v < 0) {
+        if (typeof v !== 'number' || v < 0) {
           return callback(true);
         }
       }

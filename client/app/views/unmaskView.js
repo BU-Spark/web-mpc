@@ -32,7 +32,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             analystController.getExistingCohorts(sessionKey, sessionPass).then(function (cohortMapping) {
               tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
               tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);
-              
+
             });
 
             if (result['hasQuestions'] === true) {
@@ -41,7 +41,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             if (result['hasUsability'] === true) {
               tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
             }
-            if(result['linearRegressions'] != null &&  !(Object.keys(result['linearRegressions']).length === 0)){
+            if (result['linearRegressions'] != null &&  !(Object.keys(result['linearRegressions']).length === 0)) {
               tableController.saveLinearRegressions(result['linearRegressions'], sessionKey, result['cohorts'])
             }
             $('#tables-area').show();
