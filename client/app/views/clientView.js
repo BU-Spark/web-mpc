@@ -11,7 +11,6 @@ define([
   'alertHandler',
   'bootstrap',
   './surveyView',
-  'mpc'
 ], function (
   $,
   clientController,
@@ -25,7 +24,6 @@ define([
   alertHandler,
   _,
   surveyView,
-  mpc
 ) {
 
   // Creates survey
@@ -73,18 +71,11 @@ define([
     }
   }
 
-<<<<<<< HEAD
   function addDefinitionLink() {
     if (table_template.definitions) {
       $('#cohort-drop-label').append(
         ' <a href="/definitions" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>'
       );
-=======
-    function addDefinitionLink() {
-      if (table_template.definitions) {
-        $('#cohort-drop-label').append(' <a href="/definitions" target="_blank"><span class="glyphicon glyphicon-question-sign"></span></a>');
-      }
->>>>>>> 2ad0c18 (update packages)
     }
   }
 
@@ -97,7 +88,6 @@ define([
       displaySurveyQuestions();
       // Create the tables
       var tables = tableController.makeTables(table_template.tables);
-      mpc.consistentOrdering(table_template);
 
       usabilityController.initialize();
       usabilityController.saveBrowser();

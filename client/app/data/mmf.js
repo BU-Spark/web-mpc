@@ -1,125 +1,19 @@
-<<<<<<< HEAD
-if (typeof define !== "function") {
-  var define = require("amdefine")(module);
-=======
 if (typeof define !== 'function') {
   var define = require('amdefine')(module);
->>>>>>> 2ad0c18 (update packages)
 }
 
 define([], function () {
   return {
     tables: [
       {
-<<<<<<< HEAD
-        name: "Table 1",
-        element: "number-paintings",
-        //The format for linear regression is an array of pairs where each pair is an array of the independent variable
-        //followed by the dependent variable. The independent variable and dependent variable are both arrays of two elements,
-        //the first is the name of the row, the second is the name of the column
-        operations: {
-          SUM: true,
-          STD: true,
-          LIN: [
-            [
-              ["num_paintings", "value"],
-              ["age", "value"],
-            ],
-          ],
-        },
-        cohortOperations: { SUM: true },
-        hot_parameters: {
-          rowHeaderWidth: 150,
-          height: 330,
-          colWidths: [150],
-          stretchH: "none",
-        },
-        rows: [
-          {
-            key: "num_paintings",
-            label: "Number of paintings",
-          },
-          {
-            key: "age",
-            label: "Museum age",
-          },
-          {
-            key: "num_statues",
-            label: "Number of statues",
-          },
-          {
-            key: "num_photos",
-            label: "Number of photos",
-          },
-        ],
-        cols: [
-          [
-            {
-              key: "value",
-              label: "Value",
-            },
-          ],
-        ],
-        types: [
-          {
-            range: {
-              row: "*",
-              col: "*",
-            },
-            type: "int",
-            min: 0,
-            max_warning: 200,
-            empty: false,
-          },
-        ],
-        excel: [
-          {
-            sheet: "Test",
-            start: "B2",
-            end: "B2",
-            firstrow: "Test",
-          },
-        ],
-        tooltips: [
-          {
-            range: {
-              row: "*",
-              col: "*",
-            },
-            tooltip: {
-              errorTitle: "Invalid Data Entry",
-              error:
-                "Please do not input any text or leave any cells blank. If the value is zero, please input zero.",
-              warningTitle: "Warning: Data is too big",
-              warning: "Are you sure this value is correct?",
-            },
-          },
-        ],
-      },
-      {
-        name: "Table 2",
-        element: "number-emps",
-        operations: { SUM: true, STD: true, LIN: null },
-        cohortOperations: { SUM: true },
-=======
         name: 'Table 1',
         element: 'number-paintings', //TODO: what does this element do?
         operations: {SUM: true, STD: true},
         cohortOperations: {SUM: true},
->>>>>>> 2ad0c18 (update packages)
         hot_parameters: {
           rowHeaderWidth: 150,
           height: 230,
           colWidths: [150],
-<<<<<<< HEAD
-          stretchH: "none",
-        },
-        rows: [
-          {
-            key: "number_emp",
-            label: "Number of employees",
-          },
-=======
           stretchH: 'none'
         },
         rows: [
@@ -127,44 +21,18 @@ define([], function () {
             key: 'local',
             label: 'Number of paintings'
           }
->>>>>>> 2ad0c18 (update packages)
         ],
         cols: [
           [
             {
-<<<<<<< HEAD
-              key: "value",
-              label: "Value",
-            },
-          ],
-=======
               key: 'value',
               label: 'Test'
             }
           ]
->>>>>>> 2ad0c18 (update packages)
         ],
         types: [
           {
             range: {
-<<<<<<< HEAD
-              row: "*",
-              col: "*",
-            },
-            type: "int",
-            min: 0,
-            max_warning: 200,
-            empty: false,
-          },
-        ],
-        excel: [
-          {
-            sheet: "Test2",
-            start: "B2",
-            end: "B2",
-            firstrow: "Test",
-          },
-=======
               row: '*',
               col: '*'
             },
@@ -181,12 +49,10 @@ define([], function () {
             end: 'B2',
             firstrow: 'Test'
           }
->>>>>>> 2ad0c18 (update packages)
         ],
         tooltips: [
           {
             range: {
-<<<<<<< HEAD
               row: "*",
               col: "*",
             },
@@ -2600,79 +2466,3 @@ define([], function () {
     send_submitter_ids: true,
   };
 });
-=======
-              row: '*',
-              col: '*'
-
-            },
-            tooltip: {
-              errorTitle: 'Invalid Data Entry',
-              error: 'Please do not input any text or leave any cells blank. If the value is zero, please input zero.',
-              warningTitle: 'Warning: Data is too big',
-              warning: 'Are you sure this value is correct?'
-            }
-          }
-        ]
-      }
-    ],
-    survey: {
-      header: 'Answer Additional Questions',
-      directions: 'We have included these questions to get instant feedback as to how this process went in order to improve the process in future years. Please know that the answers to these questions will be anonymous, and they will be considered separately from the encrypted and aggregated data above.',
-      questions: [
-        {
-          question_text: 'Which department are you in?',
-          input_type: 'radio',
-          inputs: [
-            {
-              label: 'Human Resources (e.g. HR Manager, HRIS Manager, Compensation Manager, Talent &amp; Development)',
-              value: '1'
-            },
-            {
-              label: 'Operations (e.g. Director of Operations)',
-              value: '2'
-            },
-            {
-              label: 'Diversity (e.g. Chief Diversity Officer)',
-              value: '3'
-            },
-            {
-              label: 'Upper Management (e.g. COO, CEO, Executive Director)',
-              value: '4'
-            },
-            {
-              label: 'Human Resources (e.g. HR Manager, HRIS Manager, Compensation Manager, Talent &amp; Development)',
-              value: '5'
-            }
-          ]
-        }
-      ]
-    },
-    usability: [
-      'data_prefilled',
-        {time_spent: ['page', 'session-area', 'tables-area', 'amount-spent', 'number-MBEs', 'addressable-spend', 'review-and-submit']},
-        {browser: ['chrome', 'edge', 'msie', 'firefox', 'opera', 'other', 'safari']},
-      {validation_errors: [
-        'SESSION_KEY_ERROR',
-        'SESSION_INFO_ERROR',
-        'PARTICIPATION_CODE_ERROR',
-        'SESSION_PARTICIPATION_CODE_SERVER_ERROR',
-        'UNCHECKED_ERR',
-        'GENERIC_TABLE_ERR',
-        'SERVER_ERR',
-        'GENERIC_SUBMISSION_ERR',
-        'NAN_EMPTY_CELLS',
-        'SEMANTIC_CELLS',
-        'CELL_ERROR'
-      ]
-      }
-    ],
-    cohort_selection: true,
-    cohorts: [
-            {name: 'Modern'},
-            {name: 'Classical'},
-    ],
-    cohort_threshold: 0,
-    send_submitter_ids: true
-  };
-});
->>>>>>> 2ad0c18 (update packages)

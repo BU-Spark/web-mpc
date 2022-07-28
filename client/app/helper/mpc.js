@@ -456,7 +456,6 @@ define(['constants'], function (constants) {
     }
 
     // Compute all the results: computation proceeds by party in order
-    console.log('computing results for cohorts...')
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
 
