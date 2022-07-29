@@ -128,22 +128,13 @@ define([
     // List values according to consistent ordering
     for (var i = 0; i < ordering.tables.length; i++) {
       var t = ordering.tables[i];
-      values.push(Math.round(dataSubmission[t.table][t.row][t.col]));
+      values.push(Math.round(dataSubmission['tables'][t.table][t.row][t.col]));
     }
 
-    // Map
-    // key - question id
-    // value - Map of choice answers to the question
-    const answersToQuestions = dataSubmission['questions'];
-    if (answersToQuestions) {
-      console.log(answersToQuestions);
-      ordering.questions.forEach((question, id) => {
-        if (answersToQuestions.has(id)) {
-          answersToQuestions.get(id).forEach((answer) => {
-            values.push(answer);
-          });
-        }
-      });
+    // List values by the index of data submission
+    // index of questions in data submission is equal to the id of the question
+    for (i = 0; i < ordering.questions.length; i++) {
+      values.push(dataSubmission['questions'][i].answers)
     }
 
     for (var k = 0; k < ordering.usability.length; k++) {
@@ -168,7 +159,7 @@ define([
       },
       party_id: null,
     };
-
+    console.log('values array created!');
     // Initialize and submit
     var jiff = initialize(sessionkey, 'client', options);
     jiff.wait_for([1, 's1'], function () {
@@ -177,18 +168,44 @@ define([
         jiff.disconnect(false, false);
         callback.apply(null, arguments);
       };
+
+      console.log('sharing table values...');
       // first share table values
       for (var i = 0; i < ordering.tables.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
       }
+
+      console.log('sharing squared table values...')
       // then share table values squared (for deviations)
       for (i = 0; i < ordering.tables.length; i++) {
         jiff.share(new BigNumber(values[i]).pow(2), null, [1, 's1'], [jiff.id]);
       }
+
+      // sharing questions, keep in mind that some answers are done by votings;
+      // therefore it is in an array, which means multiple elements in the array could be from a single question
+      // n = # of answers, m = # of questions => n > m
+      console.log('sharing questions values...')
+      const tAndQLengths = ordering.tables.length + ordering.questions.length;
+      for (i = ordering.tables.length; i < tAndQLengths; i++) {
+        if (typeof values[i] == 'number') {
+          jiff.share(values[i], null, [1, 's1'], [jiff.id]);
+        } else {
+          // if the answer is from checkbox or radiogroup => array with binary num [0,1]
+          if (typeof values[i][0] == 'number') {
+            jiff.share_array(values[i], values[i].length, null, [1, 's1'], [jiff.id]);
+          } else {
+            // if the answer is from matrixdropdown => nested array
+            values[i].forEach(v => {
+              jiff.share_array(values[i], values[i].length, null, [1, 's1'], [jiff.id]);
+            })
+          }
+        }
+      }
+
+      console.log('sharing usability values...');
       // then share the rest
-      for (i = ordering.tables.length; i < values.length; i++) {
-        const share = jiff.share(values[i], null, [1, 's1'], [jiff.id]);
-        console.log({ share: share, value: values[i] });
+      for (i = tAndQLengths; i < values.length; i++) {
+        jiff.share(values[i], null, [1, 's1'], [jiff.id]);
       }
       jiff.restFlush();
     });
@@ -231,6 +248,7 @@ define([
       promise
         .then(function (result) {
           jiff.disconnect(false, false);
+          console.log('mpc.compute() result: ', result)
           callback(mpc.format(result, submitters, ordering));
         })
         .catch(function (err) {

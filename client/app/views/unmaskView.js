@@ -1,4 +1,3 @@
-/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'controllers/analystController', 'helper/drop_sheet', 'alertHandler', 'table_template', 'spin'],
   function ($, jiffController, tableController, analystController, DropSheet, alertHandler, table_template, Spinner) {
@@ -32,7 +31,6 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             analystController.getExistingCohorts(sessionKey, sessionPass).then(function (cohortMapping) {
               tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
               tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);
-
             });
 
             if (result['hasQuestions'] === true) {

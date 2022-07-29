@@ -20,9 +20,7 @@ define(['survey-jquery', 'jquery', 'table_template'], function (
     window.survey = survey;
     window.surveyData = null;
     survey.onComplete.add(function (sender) {
-      console.log('Survey results: ', sender.data);
       window.surveyData = sender.data;
-
     });
     $('#additional-questions').Survey({ model: survey });
 

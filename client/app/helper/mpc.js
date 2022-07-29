@@ -31,6 +31,106 @@ define(['constants'], function (constants) {
     }
   };
 
+  /**
+   * function for extracting the questions from the table template
+   * @param {*} table_template an object extracted `client/app/data/mmf.js`
+   * @return {Array<{ id: number, text: string, type: string, options?: Array<{ text: string, value: number}> | Array<Array<{text: string, value: number}>>}} template for questions. Options property is not null when the type of questions is either checkbox, multipletext, radiogroup, matrixcolumndown
+   */
+  var orderSurveyOneQuestions = function (table_template) {
+    var questions = [];
+    if (table_template['surveyjs-1'] != null) {
+      const getQuestions = (elements) => {
+        for (let element of elements) {
+          const question_text = element.title;
+          const question_id = element.name;
+          switch (element.type) {
+            case 'panel':
+              getQuestions(element.elements);
+              break;
+            // the value is saved as an array, such that the position of elements is respective to the options
+            case 'radiogroup': {
+              const options = element.choices.map((choice, idx) => {
+                return { value: idx, text: choice.text };
+              });
+              questions.push({
+                text: question_text,
+                id: question_id,
+                type: element.type,
+                options: options,
+              });
+              break;
+            }
+            case 'checkbox': {
+              const options = element.choices.map((choice, idx) => {
+                return { value: idx, text: choice.text };
+              });
+              questions.push({
+                text: question_text,
+                id: question_id,
+                type: element.type,
+                options: options,
+              });
+              break;
+            }
+            case 'text': {
+              questions.push({
+                text: question_text,
+                id: question_id,
+                type: element.type,
+              })
+              break;
+            }
+            case 'multipletext': {
+              const options = element.items.map((item, idx) => ({
+                text: item.name,
+                value: idx,
+              }));
+              questions.push({
+                text: question_text,
+                id: question_id,
+                type: element.type,
+                options: options,
+              })
+              break;
+            }
+
+            // the agree to disagree is in column; therefore, to make it fit the sumAndAccumulate() function
+            // the elements in outer array are the questions, while the inner arrays are the answers (agree to disagree) [0, 0, 1, 0]
+            // ex: [[0, 0, 1, 0, 0], ...] == [[disagree, somewhat disagree, neutral, somewhat agree, agree], ...] => in this case, the user picked neutral
+            case 'matrixdropdown': {
+              const columns = element.columns[0].choices;
+              const rows = element.rows;
+              var options = rows.map(() => {
+                const suboptions = columns.map((row, idx) => ({
+                  text: row.text,
+                  value: idx,
+                }));
+                return suboptions;
+              })
+
+              questions.push({
+                question: question_text,
+                id: question_id,
+                type: element.type,
+                options: options,
+              });
+              break;
+            }
+            default:
+              console.error('Unknown question type: ', element);
+              break;
+          }
+        }
+      };
+      const all_questions = table_template['surveyjs-1'].pages
+        .map(p => p.elements)
+        .reduce((prev, curr) => [...prev, ...curr]);
+
+      getQuestions(all_questions);
+      return questions;
+    }
+  }
+
   // Order: consistent order on values as defined in the template.
   // The order will be the same on client, server, and analyst side.
   // Order:
@@ -42,12 +142,12 @@ define(['constants'], function (constants) {
   // The returned object is formatted as follows:
   // {
   //   tables: [ { table: <first table name>, row: <first row key>, col: <first col key> }, ... ]
-  //   questions: [ { question: <first question text>, option: <first option value> }, ... ]
+  //   questions: [{ id: string, text: string, type: string, options: Array<{ value: number, text: string }> | Array<Array<{ value: number, text: string }>> }, ...]
   // }
+  // check below to see question object properties
   var consistentOrdering = function (table_template) {
     var tables = [];
-    const questions = new Map();
-    // var questions = [];
+    var questions = [];
     var usability = [];
     var table_meta = {};
 
@@ -126,143 +226,8 @@ define(['constants'], function (constants) {
       }
     }
 
-    // order questions
-    if (table_template['surveyjs-1'] != null) {
-      const pages = table_template['surveyjs-1'].pages;
-      const getQuestions = (element) => {
-        const elements = element.elements;
-
-        for (let element of elements) {
-          const question_text = element.title;
-          const question_id = element.name;
-
-          switch (element.type) {
-            case 'panel':
-              getQuestions(element);
-              break;
-            case 'radiogroup':
-            case 'checkbox': {
-              const options = [];
-              const choices = element.choices;
-              const hasOther = element.hasOther === true;
-
-              for (let choice of choices) {
-                options.push({ value: choice.value, label: choice.text });
-              }
-              if (hasOther) {
-                options.push({
-                  value: String(options.length + 1),
-                  label: element.otherText,
-                });
-              }
-
-              const question = {
-                question: question_text,
-                id: question_id,
-                type: element.type,
-                hasOther: hasOther,
-                items: options,
-              };
-              questions.set(question_id, question);
-
-              break;
-            }
-            case 'text': {
-              let isNumber = element.inputType === 'number';
-
-              const question = {
-                question: question_text,
-                id: question_id,
-                isNumber: isNumber,
-                type: element.type,
-                items: [{ label: question_text }],
-              };
-              questions.set(question_id, question);
-              break;
-            }
-            case 'multipletext': {
-              const items = [];
-              for (let item of element.items) {
-                items.push({
-                  label: item.title,
-                  name: item.name,
-                  isNumber: item.inputType === 'number',
-                });
-              }
-              console.log({element, items});
-
-              const question = {
-                question: question_text,
-                id: question_id,
-                type: element.type,
-                items: items,
-              };
-              questions.set(question_id, question);
-              break;
-            }
-            case 'matrixdropdown': {
-              const columns = element.columns;
-              const sub_subquestions = [];
-              for (let col of columns) {
-                const title = col.title;
-                const id = col.name;
-                const type = col.cellType;
-                const options = [];
-                for (let choice of col.choices) {
-                  options.push({ value: choice.value, label: choice.text });
-                }
-                const sub_subquestion = {
-                  question: title,
-                  id: id,
-                  type: type,
-                  items: options,
-                };
-
-                sub_subquestions.push(sub_subquestion);
-              }
-
-              const subquestions = [];
-              const rows = element.rows;
-              for (let i = 0; i < rows.length; i++) {
-                const question_text = rows[i].text;
-                const id = rows[i].value;
-                const subquestion = {
-                  question: question_text,
-                  id: id,
-                  items: sub_subquestions,
-                };
-                subquestions.push(subquestion);
-              }
-
-              const question = {
-                question: question_text,
-                id: question_id,
-                type: element.type,
-                items: subquestions,
-              };
-              questions.set(question_id, question);
-              break;
-            }
-            default:
-              console.error('Unknown question type: ', element);
-              break;
-          }
-        }
-      };
-      for (let page of pages) {
-        getQuestions(page);
-      }
-    }
-    // if (table_template.survey != null) {
-    //   for (let q = 0; q < table_template.survey.questions.length; q++) {
-    //     let question = table_template.survey.questions[q];
-    //     for (let o = 0; o < question.inputs.length; o++) {
-    //       let option = question.inputs[o].value;
-    //       let label = question.inputs[o].label;
-    //       questions.push({ question: question.question_text, option: option, label: label });
-    //     }
-    //   }
-    // }
+    // consistent ordering for surveyjs-1 template
+    questions = orderSurveyOneQuestions(table_template);
 
     // order usability metrics
     if (table_template.usability != null) {
@@ -303,7 +268,6 @@ define(['constants'], function (constants) {
     };
 
     //find number of lin_reg_product pairs
-
     //loop through all the tables and count the number of lin_reg pairs
     var visited = {}; //keep track of which tables have already been counted
     var lin_reg_products_num = 0;
@@ -319,12 +283,28 @@ define(['constants'], function (constants) {
       }
     }
 
+    // some of the answers from questions are in array;
+    // therefore, the # of answers from the questions will be longer than ordering.questions.length
+    const questionsLength = ordering.questions.map(question => {
+      if (typeof question.options === 'number') {
+        return 1;
+      } else {
+        if (typeof question.options[0].value === 'number') {
+          return question.options.length;
+        } else {
+          return question.options.map((o) => o.length).reduce((prev, curr) => (prev + curr))
+        }
+      }
+    }).reduce((prev, curr) => (prev + curr))
+
+    const sqrTablesLength = 2*ordering.tables.length;
+    const linregTablesLength = sqrTablesLength + lin_reg_products_num;
     for (
       var k = 0;
       k <
       2 * ordering.tables.length +
         lin_reg_products_num +
-        ordering.questions.length +
+        questionsLength +
         ordering.usability.length;
       k++
     ) {
@@ -333,11 +313,11 @@ define(['constants'], function (constants) {
       ];
       if (k < ordering.tables.length) {
         result.shares.push(share);
-      } else if (k < 2 * ordering.tables.length) {
+      } else if (k < sqrTablesLength) {
         result.squares.push(share);
-      } else if (k < 2 * ordering.tables.length + lin_reg_products_num) {
+      } else if (k < linregTablesLength) {
         result.lin_reg_products.push(share);
-      } else if (k < 2 * ordering.tables.length + ordering.questions.length) {
+      } else if (k < sqrTablesLength + questionsLength) {
         result.questions.push(share);
       } else {
         result.usability.push(share);
@@ -424,6 +404,8 @@ define(['constants'], function (constants) {
   };
 
   // Perform MPC computation for averages, deviations, questions, and usability
+  // TODO: An error found on line 588
+  // ERROR: `await usability[usability.length - 1].promise;` is found to be undefined
   var compute = async function (
     jiff_instance,
     submitters,
@@ -438,6 +420,8 @@ define(['constants'], function (constants) {
       productSums,
       questions = null,
       usability = null;
+
+    console.log('submitters', submitters)
 
     // Temporary variables
     var cohort, i, p, shares;
@@ -472,12 +456,12 @@ define(['constants'], function (constants) {
     }
 
     // Compute all the results: computation proceeds by party in order
+    console.log('computing results for cohorts...')
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
 
       for (p = 0; p < submitters[cohort].length; p++) {
         var partyID = submitters[cohort][p];
-
         // Get all shares this party sent: values, squares of values, questions, and usability.
         shares = getShares(jiff_instance, partyID, ordering);
 
@@ -536,7 +520,6 @@ define(['constants'], function (constants) {
     for (i = 0; i < submitters['cohorts'].length * 2; i++) {
       // every 2 outputs belongs to same cohort - evens are sums; odds are square sums
       let idx = Math.floor(i / 2);
-      console.log(idx, submitters['cohorts'][idx]);
       if (i % 2 === 0) {
         sums[submitters['cohorts'][idx]] = cohortOutputs[i];
       } else {
@@ -544,7 +527,7 @@ define(['constants'], function (constants) {
       }
     }
 
-    // Open all sumsm sums of squares and productSums
+    // Open all sums of squares and productSums
     sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
     squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [
       1,
@@ -556,7 +539,18 @@ define(['constants'], function (constants) {
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
+    console.log('questions:', questions)
+
+    // TODO: resolve the usability error => openValue process takes too long
     usability = await openValues(jiff_instance, usability, [1]);
+    console.log('usability', usability)
+    console.log({
+      sums: sums,
+      squaresSums: squaresSums,
+      productSums: productSums,
+      questions: questions,
+      usability: usability,
+    })
     updateProgress(progressBar, 1);
 
     // Put results in object

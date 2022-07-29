@@ -257,7 +257,7 @@ define([
         }
 
         // Verify additional questions
-        if (table_template.survey !== null) {
+        if (table_template.survey || table_template['surveyjs-1']) {
           var questionsValid = false;
           if (
             window &&
@@ -345,9 +345,84 @@ define([
     }
 
     /**
+     * A function to extract the answers from the survey. Text answer from Other is ignored since including it is not computable in MPC
+     * @param {{tables: any, questions: Array<{id: string, answers: Array<any> | number}>, usability: Array<any>}} data_submission an object that will be passed through `jiffController.submit`
+     * @param {Object} survey_data extracted from `window.survey` that is initialized in {@link ./surveryView.js|surveryView}
+     * @param {Array<{ id: number, text: string, type: string, options?: Array<{ text: string, value: number}> | Array<Array<{text: string, value: number}>> }>} questions question object from the template as stated in `mpc.consistentOrdering`
+     */
+    function constructQuestion(data_submission, survey_data, questions) {
+      console.log('constructing questions...')
+      console.log('questions: ', questions);
+      console.log('survey_data: ', survey_data)
+
+      questions.forEach((question) => {
+        const id = question.id
+        const hasAnswer = id in survey_data;
+        var answer;
+        switch (question.type) {
+          case 'radiogroup': {
+            answer = new Array(question.options.length).fill(0);
+            if (hasAnswer) {
+              answer[parseInt(survey_data[id])-1] = 1;
+            }
+            break;
+          }
+          case 'checkbox': { // checkbox is in shape of array, where radiogroup is single item;
+            answer = new Array(question.options.length).fill(0);
+            if (hasAnswer) {
+              if (typeof survey_data[id] == 'string') {
+                answer[parseInt(survey_data[id])-1] = 1;
+              } else {
+                // if it's an array
+                survey_data[id].forEach((i) => {
+                  answer[parseInt(i)-1] = 1
+                });
+              }
+            }
+            break;
+          }
+          case 'text': {
+            answer = 0;
+            if (hasAnswer) {
+              if (typeof survey_data[id] === 'string') {
+                answer = parseInt(survey_data)
+              } else if (typeof survey_data[id] === 'number') {
+                answer = survey_data[id]
+              }
+            }
+            break;
+          }
+          case 'multipletext': {
+            answer = new Array(question.options.length).fill(0)
+            if (hasAnswer) {
+              answer = question.options.map(o => survey_data[id][o.text])
+            }
+            break;
+          }
+          case 'matrixdropdown': {
+            var answers = new Array(question.options.length).fill(new Array(question.options[0].length).fill(0))
+            if (hasAnswer) {
+              Object.values(survey_data[id]).forEach((o, rowIdx) => {
+                const colIdx = parseInt(Object.values(o).pop())-1;
+                answers[colIdx][rowIdx] = 1;
+              })
+            }
+            break;
+          }
+          default:
+            console.error('Unknown answer type');
+            break;
+        }
+        data_submission.questions.push({id: id, answers: answer})
+      });
+    }
+
+    /**
      * All inputs are valid. Construct JSON objects and send them to the server.
      */
     function constructAndSend(tables, cohort, la) {
+      console.log('running constructAndSend...');
+
       if (!Object.entries) {
         Object.entries = function (obj) {
           var ownProps = Object.keys(obj),
@@ -356,7 +431,6 @@ define([
           while (i--) {
             resArray[i] = [ownProps[i], obj[ownProps[i]]];
           }
-
           return resArray;
         };
       }
@@ -374,142 +448,27 @@ define([
         .trim()
         .toLowerCase();
 
-      // Add questions data, each question has three parts:
-      //  'YES', 'NO', and 'NA' and each one has value 0 or 1
+      // Add questions data, there are different type of questions
+      // therefore, each question is handled differently
+      const data = window.survey ? window.survey.data : null;
 
-      const data = window.survey.data;
-      var data_submission = data ? { questions: new Map() } : {};
-
-      let answers = data;
-      questions.forEach((question, id) => {
-        const hasAnswer = id in data;
-        const hasOther = id + '-Comment' in data;
-        const values = new Map();
-        switch (question.type) {
-          case 'radiogroup':
-          case 'checkbox': {
-            let otherText = data[id + '-Comment'];
-            otherText = otherText && otherText.length > 0 ? otherText : '';
-
-            // checkbox is in shape of array, where radiogroup is single item;
-            let answerArray = [];
-            if (hasAnswer) {
-              answerArray = Array.isArray(answers[id])
-                ? answers[id]
-                : [answers[id]];
-            }
-
-            // set all options to checked if answerArray has the option in it
-            for (let i = 0; i < question.items.length; i++) {
-              values.set(
-                question.items[i].value,
-                answerArray.includes(question.items[i].value) ? 1 : 0
-              );
-            }
-            // if question had "other" option, always add other text
-            // to ensure values are the same length every time.
-            if (question.hasOther) {
-              if (hasOther) {
-                values.set(String(question.items.length), 1);
-              }
-              values.set(question.items.length + '-other', otherText);
-            }
-            break;
-          }
-          case 'text': {
-            values.set('1', 0);
-            values.set('1-other', '');
-            if (hasAnswer) {
-              values.set('1', 1);
-              values.set('1-other', answers[id]);
-            }
-            break;
-          }
-          case 'multipletext': {
-            for (let i = 0; i < question.items.length; i++) {
-              const item = question.items[i];
-
-              // set all subquestion answers to empty value
-              values.set(item.name, item.isNumber ? 0 : '');
-            }
-            if (hasAnswer) {
-              const answersKeyVals = Object.entries(answers[id]);
-              // set all existing answers
-              for (let answersKeyVal of answersKeyVals) {
-                if (values.has(String(answersKeyVal[0]))) {
-                  values.set(String(answersKeyVal[0]), answersKeyVal[1]);
-                }
-              }
-            }
-            break;
-          }
-          case 'matrixdropdown': {
-            // set all possible choices to non-checked
-            // for each subquestion in question
-            for (let i = 0; i < question.items.length; i++) {
-              const subquestion = question.items[i];
-              // look in columns now
-              // for each subsubquestion in subquetion
-              for (let j = 0; j < subquestion.items.length; j++) {
-                // column here which is sub subquestion
-                const sub_subquestion = subquestion.items[j];
-                // choices in sub_subquestions
-                for (let k = 0; k < sub_subquestion.items.length; k++) {
-                  values.set(
-                    subquestion.id +
-                      ':' +
-                      sub_subquestion.id +
-                      ':' +
-                      sub_subquestion.items[k].value,
-                    0
-                  );
-                }
-              }
-            }
-
-            if (hasAnswer) {
-              const answerArray = Object.entries(answers[id]);
-              for (let i = 0; i < answerArray.length; i++) {
-                for (let j = 0; j < question.items.length; j++) {
-                  const answer = answerArray[i];
-                  // has subquestion answer
-                  // answerArray has subquestion texts as their key;
-                  if (answer[0] === question.items[j].id) {
-                    const columns = Object.entries(answer[1]);
-                    for (let col of columns) {
-                      let colName = col[0];
-                      // if column cellType is radiogroup it is single value, where as checkbox is an array
-                      let colChoices = Array.isArray(col[1])
-                        ? col[1]
-                        : [col[1]];
-
-                      for (let choiceID of colChoices) {
-                        // set selected choices in columns to 1
-                        values.set(
-                          question.items[j].id + ':' + colName + ':' + choiceID,
-                          1
-                        );
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            break;
-          }
-          default:
-            console.error('Unknown answer type');
-            break;
-        }
-
-        data_submission['questions'].set(id, values);
-      });
+      /**
+       * @typedef TypeSubmissions
+       * @property {Map<string, any>} tables
+       * @property {Array<{ id: number, text: string, type: string, options: Array<{ text: string, value: number}> | number }>} questions
+       * @property {any} usability
+       */
+      /** @type {TypeSubmissions} */
+      var data_submission = {tables: {}, questions: [], usability: []};
+      if (data) {
+        constructQuestion(data_submission, data, questions)
+      }
 
       // Handle table data, tables are represented as 2D associative arrays
       // with the first index being the row key, and the second being the column key
       var tables_data = tableController.constructDataTables(tables);
       for (var i = 0; i < tables_data.length; i++) {
-        data_submission[tables_data[i].name] = tables_data[i].data;
+        data_submission['tables'][tables_data[i].name] = tables_data[i].data;
       }
 
       // handle ratios

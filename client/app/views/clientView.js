@@ -11,6 +11,7 @@ define([
   'alertHandler',
   'bootstrap',
   './surveyView',
+  'mpc'
 ], function (
   $,
   clientController,
@@ -24,6 +25,7 @@ define([
   alertHandler,
   _,
   surveyView,
+  mpc
 ) {
 
   // Creates survey
@@ -65,6 +67,7 @@ define([
       displaySurveyQuestions();
       // Create the tables
       var tables = tableController.makeTables(table_template.tables);
+      mpc.consistentOrdering(table_template);
 
       usabilityController.initialize();
       usabilityController.saveBrowser();
