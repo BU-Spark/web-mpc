@@ -216,7 +216,7 @@ define([], function () {
         },
       ],
     },
-    "surveyjs-1": {
+    "regular": {
       title: "Additional questions",
       logoPosition: "right",
       pages: [
@@ -1477,7 +1477,7 @@ define([], function () {
       showPreviewBeforeComplete: "showAnsweredQuestions",
       widthMode: "responsive",
     },
-    "surveyjs-2": {
+    "hr-only": {
       title: "Additional questions",
       logoPosition: "right",
       completedHtml: "<h3>Thank you for your feedback.</h3>",
