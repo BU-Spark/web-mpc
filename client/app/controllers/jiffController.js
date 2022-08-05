@@ -67,6 +67,7 @@ define([
     },
   };
 
+  // TODO: error occured, unable to initialize jiff => happened when enter unmask page
   // initialize jiff instance
   var initialize = function (session, role, options) {
     var baseOptions = {
@@ -159,7 +160,6 @@ define([
       },
       party_id: null,
     };
-    console.log('values array created!');
     // Initialize and submit
     var jiff = initialize(sessionkey, 'client', options);
     jiff.wait_for([1, 's1'], function () {
@@ -169,13 +169,11 @@ define([
         callback.apply(null, arguments);
       };
 
-      console.log('sharing table values...');
       // first share table values
       for (var i = 0; i < ordering.tables.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
       }
 
-      console.log('sharing squared table values...')
       // then share table values squared (for deviations)
       for (i = 0; i < ordering.tables.length; i++) {
         jiff.share(new BigNumber(values[i]).pow(2), null, [1, 's1'], [jiff.id]);
@@ -184,7 +182,6 @@ define([
       // sharing questions, keep in mind that some answers are done by votings;
       // therefore it is in an array, which means multiple elements in the array could be from a single question
       // n = # of answers, m = # of questions => n > m
-      console.log('sharing questions values...')
       const tAndQLengths = ordering.tables.length + ordering.questions.length;
       for (i = ordering.tables.length; i < tAndQLengths; i++) {
         if (typeof values[i] == 'number') {
@@ -202,7 +199,6 @@ define([
         }
       }
 
-      console.log('sharing usability values...');
       // then share the rest
       for (i = tAndQLengths; i < values.length; i++) {
         jiff.share(values[i], null, [1, 's1'], [jiff.id]);
@@ -248,7 +244,6 @@ define([
       promise
         .then(function (result) {
           jiff.disconnect(false, false);
-          console.log('mpc.compute() result: ', result)
           callback(mpc.format(result, submitters, ordering));
         })
         .catch(function (err) {

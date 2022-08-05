@@ -351,9 +351,6 @@ define([
      * @param {Array<{ id: number, text: string, type: string, options?: Array<{ text: string, value: number}> | Array<Array<{text: string, value: number}>> }>} questions question object from the template as stated in `mpc.consistentOrdering`
      */
     function constructQuestion(data_submission, survey_data, questions) {
-      console.log('constructing questions...')
-      console.log('questions: ', questions);
-      console.log('survey_data: ', survey_data)
 
       questions.forEach((question) => {
         const id = question.id
@@ -421,7 +418,6 @@ define([
      * All inputs are valid. Construct JSON objects and send them to the server.
      */
     function constructAndSend(tables, cohort, la) {
-      console.log('running constructAndSend...');
 
       if (!Object.entries) {
         Object.entries = function (obj) {

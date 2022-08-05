@@ -404,8 +404,6 @@ define(['constants'], function (constants) {
   };
 
   // Perform MPC computation for averages, deviations, questions, and usability
-  // TODO: An error found on line 588
-  // ERROR: `await usability[usability.length - 1].promise;` is found to be undefined
   var compute = async function (
     jiff_instance,
     submitters,
@@ -420,8 +418,6 @@ define(['constants'], function (constants) {
       productSums,
       questions = null,
       usability = null;
-
-    console.log('submitters', submitters)
 
     // Temporary variables
     var cohort, i, p, shares;
@@ -456,7 +452,6 @@ define(['constants'], function (constants) {
     }
 
     // Compute all the results: computation proceeds by party in order
-    console.log('computing results for cohorts...')
     for (i = 0; i < submitters['cohorts'].length; i++) {
       cohort = submitters['cohorts'][i];
 
@@ -526,7 +521,10 @@ define(['constants'], function (constants) {
         squaresSums[submitters['cohorts'][idx]] = cohortOutputs[i];
       }
     }
-
+    /**
+     * TODO: error at openValues(),the jiff_instance.open() keeps returning null after resolving the promise even though it is supposed to,
+     * according to the documentation, return a JQuery to retrieve the values from the share.
+    */
     // Open all sums of squares and productSums
     sums['all'] = await openValues(jiff_instance, sums['all'], [1]);
     squaresSums['all'] = await openValues(jiff_instance, squaresSums['all'], [
@@ -539,18 +537,10 @@ define(['constants'], function (constants) {
 
     // Open questions and usability
     questions = await openValues(jiff_instance, questions, [1]);
-    console.log('questions:', questions)
 
     // TODO: resolve the usability error => openValue process takes too long
     usability = await openValues(jiff_instance, usability, [1]);
-    console.log('usability', usability)
-    console.log({
-      sums: sums,
-      squaresSums: squaresSums,
-      productSums: productSums,
-      questions: questions,
-      usability: usability,
-    })
+
     updateProgress(progressBar, 1);
 
     // Put results in object
