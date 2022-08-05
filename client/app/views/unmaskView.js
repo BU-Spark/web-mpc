@@ -1,4 +1,3 @@
-/*eslint no-console: ["error", { allow: ["warn", "error"] }] */
 
 define(['jquery', 'controllers/jiffController', 'controllers/tableController', 'controllers/analystController', 'helper/drop_sheet', 'alertHandler', 'table_template', 'spin'],
   function ($, jiffController, tableController, analystController, DropSheet, alertHandler, table_template, Spinner) {
@@ -28,11 +27,14 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
           var privateKey = e.target.result;
           var progressBar = document.getElementById('unmask-progress-bar');
 
+          /**
+           * TODO: after receiving data from the participants, then stopping the session as host and enter the unmask page,
+           * jiffController.analyst.computeAndFormat() is executed, where the error occured during the initialization of jiff instance.
+           */
           jiffController.analyst.computeAndFormat(sessionKey, sessionPass, privateKey, progressBar, error, function (result) {
             analystController.getExistingCohorts(sessionKey, sessionPass).then(function (cohortMapping) {
               tableController.saveTables(result['averages'], sessionKey, 'Averages', result['cohorts'], cohortMapping);
               tableController.saveTables(result['deviations'], sessionKey, 'Standard_Deviations', result['cohorts'], cohortMapping);
-              
             });
 
             if (result['hasQuestions'] === true) {
@@ -41,7 +43,7 @@ define(['jquery', 'controllers/jiffController', 'controllers/tableController', '
             if (result['hasUsability'] === true) {
               tableController.saveUsability(result['usability'], sessionKey, result['cohorts']);
             }
-            if(result['linearRegressions'] != null &&  !(Object.keys(result['linearRegressions']).length === 0)){
+            if (result['linearRegressions'] != null &&  !(Object.keys(result['linearRegressions']).length === 0)) {
               tableController.saveLinearRegressions(result['linearRegressions'], sessionKey, result['cohorts'])
             }
             $('#tables-area').show();

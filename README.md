@@ -10,7 +10,31 @@ Implementation of a web-based data collection and aggregation infrastructure tha
 * MongoDB
 * [JIFF](https://github.com/BU-Spark/jiff/) (Bundled as a Git submodule)
 
-## Quick Start Instructions
+## Directory
+- [WEB-MPC](#web-mpc)
+  - [Requirements](#requirements)
+  - [Directory](#directory)
+- [Quick Start Instructions](#quick-start-instructions)
+- [Deployment Instructions](#deployment-instructions)
+  - [Enabling SSL](#enabling-ssl)
+  - [Local Machine Instructions](#local-machine-instructions)
+- [Deployments](#deployments)
+    - [Specifying a Deployment](#specifying-a-deployment)
+- [Usage](#usage)
+    - [Generate session key](#generate-session-key)
+    - [Manage session](#manage-session)
+    - [Fill out data](#fill-out-data)
+    - [Retrieve the result](#retrieve-the-result)
+- [Testing](#testing)
+- [Website & Software Flowchart](#website--software-flowchart)
+  - [Create a session](#create-a-session)
+  - [Add cohorts & participants](#add-cohorts--participants)
+  - [Change session status](#change-session-status)
+  - [Stop session & unmask and display aggregate data](#stop-session--unmask-and-display-aggregate-data)
+  - [Submit data as a participant](#submit-data-as-a-participant)
+- [License](#license)
+
+# Quick Start Instructions
 
 These instructions are for demonstration and development purposes only. For a full, secure deployment, follow one of the two full instructions below.
 
@@ -43,7 +67,7 @@ npm start
 ```
 * Navigate to the website at `https://localhost:8080`
 
-## Deployment Instructions
+# Deployment Instructions
 These instructions are written for an GCP Compute Engine instance running Ubuntu 18.04 LTS. It should also allow SSH on port 22 and TCP on port 8080.
 
 * SSH onto the Compute Engine instance
@@ -206,7 +230,7 @@ forever start server/index.js
 ```
 * Open up the browser and navigate to "localhost:8080"
 
-## Deployments
+# Deployments
 
 WEB-MPC supports multiple deployments. A deployment refers to one particular data collection campaign. Each deployment may have different data formats, domain names, and HTTPS certificate settings.
 
@@ -222,7 +246,7 @@ export WEBMPC_DEPLOYMENT=<deployment_name>
 ```
 If the deployment template file at `server/config/<deployment_name>.json` does not exist or is invalid, the server will fail to start.
 
-## Usage
+# Usage
 
 The instructions below demonstrate how to operate the WEB-MPC application. All steps below are performed on the WEB-MPC web application in the browser.
 
@@ -250,7 +274,7 @@ The instructions below demonstrate how to operate the WEB-MPC application. All s
 * Click **Browse** and upload the private key file that was downloaded when generating the session key
 * Click **Unmask Data** and view the result
 
-## Testing
+# Testing
 
 WEB-MPC has end-to-end tests verifying each deployment. To run the full test suite on Linux or Mac OS, run the following command:
 ```
@@ -275,5 +299,28 @@ mocha test/selenium/bwwc.js
 npm run test -- --grep BWWC
 ```
 
-## License
+# Website & Software Flowchart
+
+## Create a session
+To create a session, enter the <b>CREATE page</b> at `<url address>/create` (for example, if the website is run locally then it'll be at `localhost:8080/create`). The image below demonstrates the software flow from creating a session:
+
+![create a session flow](https://i.imgur.com/6GKOPQe.png)
+## Add cohorts & participants
+After creating a session, the host will be redirected to the <b>MANAGE</b> page (`/manage?session=<session-id>`). Then the host can add cohorts and participants as shown in the flow below:
+
+![Imgur](https://i.imgur.com/eCbfPQh.png)
+## Change session status
+Inside the session page, you can pause your session and resume it; however, if you stop the session, you won't be able to resume it.
+
+![change-session](https://i.imgur.com/lOaJnf8.png)
+
+## Stop session & unmask and display aggregate data
+Host can stop the session and unmask the aggregate data, which requires the session id and password plus the private key that was automatically downloaded when the host started the session.
+
+![stop-session](https://i.imgur.com/t8GliHO.png)
+## Submit data as a participant
+Retrieve the url from the host session to submit data as a participant. Keep in mind that all data shared through jiff have to be numerical (type `number` in javascript) since jiff only does mathematical computation.
+
+![submit-data](https://i.imgur.com/vpfU3sk.png)
+# License
 WEB-MPC is freely distributable under the terms of the [MIT license](https://github.com/BU-Spark/web-mpc/blob/master/LICENSE). This release supports Handsontable's "[Nested headers](https://docs.handsontable.com/pro/1.17.0/demo-nested-headers.html)", a Pro feature. A [valid license](https://handsontable.com/pricing) must be obtained when using this feature.

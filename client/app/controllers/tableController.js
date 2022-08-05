@@ -781,13 +781,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
         width: template.width
       };
 
-
-      if(type === 'deviation'){
-        var handsOn = new Handsontable(document.getElementById(template.element + 'dev'), settings);
-      }else{
-        var handsOn = new Handsontable(document.getElementById(template.element), settings);
+      var handsOn
+      if (type === 'deviation') {
+        handsOn = new Handsontable(document.getElementById(template.element + 'dev'), settings);
+      } else {
+        handsOn = new Handsontable(document.getElementById(template.element), settings);
       }
-      
+
       handsOn.render();
       hotTables.push(handsOn);
     }
@@ -990,11 +990,11 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
         .appendTo(div);
 
       // Table Div
-      if(tablesDiv === '#tables-area-deviation'){
+      if (tablesDiv === '#tables-area-deviation') {
         $('<div>').attr('class', 'table-section')
         .attr('id', tables[i].element + 'dev')
         .appendTo(div);
-      }else{
+      } else {
         $('<div>').attr('class', 'table-section')
           .attr('id', tables[i].element)
           .appendTo(div);
@@ -1080,13 +1080,13 @@ define(['jquery', 'Handsontable', 'table_template', 'filesaver', 'ResizeSensor']
     filesaver.saveAs(new Blob([JSON.stringify(usability)], {type: 'application/json'}), 'Usability_' + session + '.json');
   }
 
-  function saveLinearRegressions(linearRegressions, session, counts){
+  function saveLinearRegressions(linearRegressions, session, counts) {
     var csv = [];
 
     csv.push('Table, Independent Variable Row, Independent Variable Column, Dependent Variable Row, Dependent Variable Column, Slope, Y-Intercept\n');
 
     var rows = linearRegressions['all'];
-    rows.forEach(function(row){
+    rows.forEach(function (row) {
       csv.push(row['table'] + ', ' + row['independent'].toString() + ', ' + row['dependent'].toString() + ', ' +  row['slope'] + ', ' + row['y-intercept'] + '\n');
     })
 

@@ -57,7 +57,7 @@ define(['forge'], function (forge) {
       var promise = window.crypto.subtle.decrypt({name: 'RSA-OAEP'}, ski, stringToArrayBuffer(message));
       return promise.then(function (decrypted) {
         return arrayBufferToString(decrypted);
-      }, reason => {console.log(reason)});
+      }, reason => console.log(reason));
     });
   };
 
